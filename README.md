@@ -266,7 +266,16 @@ module.exports = function override(config, env) {
   }
 }
 ```
-2. 把icon图标存入`build-res`目录，[icon图标文件名，格式等](https://www.electron.build/icons)
+2. 把icon图标存入`build-res`目录，[icon图标文件名，格式等更多设置参考](https://www.electron.build/icons)
+```json
+{
+  "build": {
+    "directories": {
+      "buildResources": "build-res"
+    }
+  }
+}
+```
 
 #### 4.3.2 只打包依赖的文件，缩减安装包尺寸，同样是修改electron-builder的配置
 ```json
