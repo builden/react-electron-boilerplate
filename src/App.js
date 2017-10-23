@@ -25,6 +25,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+        <p>version: {process.env.VERSION}</p>
         <p>store count: {store.count}</p>
         <button onClick={() => store.inc()}>inc</button>
         <button onClick={() => store.dec()}>dec</button>
