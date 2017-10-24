@@ -9,6 +9,7 @@ async function start() {
     const StartComponent = (await import(`./${startPage}`)).default;
     ReactDOM.render(<StartComponent />, document.getElementById('root'));
   } catch (e) {
+    console.error('start import error', e);
     const App = (await import('./App')).default;
     ReactDOM.render(<App />, document.getElementById('root'));
   }
