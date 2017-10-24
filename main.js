@@ -1,6 +1,7 @@
 const url = require('url');
 const path = require('path');
 const electron = require('electron');
+const program = require('commander');
 // Module to control application life.
 const app = electron.app;
 // Module to create native browser window.
@@ -19,6 +20,9 @@ function installReactDeveloperTools() {
       .catch(err => console.log('An error occurred: ', err));
   }
 }
+
+// commander support electron, process.argv must large then 1
+program.option('-d, --devtools', 'show devtools at start').parse(['', ...process.argv]);
 
 function createWindow() {
   // Create the browser window.
@@ -41,7 +45,7 @@ function createWindow() {
   mainWindow.loadURL(startUrl);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (program.devtools) mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
