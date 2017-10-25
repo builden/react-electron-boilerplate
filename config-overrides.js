@@ -1,7 +1,10 @@
 const { injectBabelPlugin, getBabelLoader } = require('react-app-rewired');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const program = require('commander');
 const version = require('./package.json').version;
+
+const inDev = process.env.NODE_ENV === 'development';
 
 program
   .version(version)
@@ -12,7 +15,7 @@ program
 module.exports = function override(config, env) {
   if (!program.web) config.target = 'electron-renderer';
 
-  if (process.env.NODE_ENV === 'development') {
+  if (inDev) {
     const loader = getBabelLoader(config.module.rules);
     if (loader.options.presets) loader.options.presets[0] = 'babel-preset-react';
     config = injectBabelPlugin('syntax-dynamic-import', config);
@@ -29,7 +32,13 @@ module.exports = function override(config, env) {
         VERSION: JSON.stringify(version),
         START_PAGE: JSON.stringify(program.start),
       },
-    })
+    }),
+    new CopyWebpackPlugin([
+      {
+        from: `node_modules/monaco-editor/${inDev ? 'dev' : 'min'}/vs`,
+        to: 'vs',
+      },
+    ])
   );
 
   return config;

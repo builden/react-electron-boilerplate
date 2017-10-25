@@ -16,4 +16,4 @@ async function start() {
 }
 start();
 
-registerServiceWorker();
+if (window.location.protocol !== 'file:') registerServiceWorker();
