@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import { Box } from './ui';
 
 class WebTest extends Component {
   render() {
-    return <div>WebTest Component</div>;
+    return <Box>WebTest Component</Box>;
   }
 }
 

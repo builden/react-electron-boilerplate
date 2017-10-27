@@ -1,5 +1,8 @@
+/// <reference path="../../node_modules/monaco-editor/monaco.d.ts" />
+
 import React from 'react';
 import PropTypes from 'prop-types';
+import registerProviders from './editor-extensions';
 
 function noop() {}
 
@@ -28,6 +31,10 @@ class MonacoEditor extends React.Component {
     }
     if (prevProps.language !== this.props.language) {
       context.monaco.editor.setModelLanguage(this.editor.getModel(), this.props.language);
+    }
+
+    if (prevProps.theme !== this.props.theme) {
+      context.monaco.editor.setTheme(this.props.theme);
     }
   }
 
@@ -79,10 +86,12 @@ class MonacoEditor extends React.Component {
         if (!context.amdRequire) context.amdRequire = context.require;
         context.amdRequire(['vs/editor/editor.main'], () => {
           this.initMonaco();
+          registerProviders();
         });
       } else {
         context.require(['vs/editor/editor.main'], () => {
           this.initMonaco();
+          registerProviders();
         });
       }
 
