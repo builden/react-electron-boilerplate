@@ -179,7 +179,14 @@ function getCompletionItemsAtScope(scope) {
       });
     }
   }
-  if (scope.parentScope) rst.push(...getCompletionItemsAtScope(scope.parentScope));
+
+  if (scope.parentScope) {
+    let parentCompletionItems = getCompletionItemsAtScope(scope.parentScope);
+    parentCompletionItems = parentCompletionItems.filter(
+      parentItem => !_.find(rst, existItem => existItem.label === parentItem.label)
+    );
+    rst.push(...parentCompletionItems);
+  }
   return rst;
 }
 
