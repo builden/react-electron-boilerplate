@@ -86,12 +86,12 @@ class MonacoEditor extends React.Component {
         if (!context.amdRequire) context.amdRequire = context.require;
         context.amdRequire(['vs/editor/editor.main'], () => {
           this.initMonaco();
-          registerProviders();
+          registerProviders(context.monaco, this.editor);
         });
       } else {
         context.require(['vs/editor/editor.main'], () => {
           this.initMonaco();
-          registerProviders();
+          registerProviders(context.monaco, this.editor);
         });
       }
 

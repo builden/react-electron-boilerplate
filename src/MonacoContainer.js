@@ -1,11 +1,73 @@
 import React, { Component } from 'react';
 import { MonacoEditor } from './ui';
 
-const defaultCode = `function add(a,b) 
-return a +b;
+const defaultCode = `
+local ab, qux = function(efc) end, function(abc) 
+   local def = abc + 1
+   return def
 end
 
-local x= "xx";`;
+function add(xy, zf)
+
+   return xy + zf
+end
+
+function xad(xx)
+
+end
+
+`;
+/* const defaultCode = `local abc = 456
+
+function qux(ab, bcd) 
+   local abd = ab + '123' + bcd
+   bcd = abd + 87
+   function qux(cc)
+      return abc + 4
+   end
+   qux(123)
+end
+
+local bar = function()
+end
+
+abc = 789;
+
+qux(1, 2)`; */
+
+/*
+const defaultCode = `local xyz = "xx"
+xyz = "dd"
+
+function add(a,b) 
+local c = 2
+   function xx()
+     function yx()
+       local xx = 3
+     end
+     local xx = 3
+   end
+return a +b
+end
+
+local qux = function(foo, bar)
+  local xx = 1
+  function innerFunc(a, b) 
+    local c = 2
+    return a + b
+  end
+  return innerFunc(1, 2) 
+end
+
+module = {}
+
+-- 定义一个常量
+module.constant = "这是一个常量"
+
+-- 定义一个函数
+function module.func1()
+    io.write("这是一个公有函数！")
+end`;*/
 
 class MonacoContainer extends Component {
   constructor(props) {
