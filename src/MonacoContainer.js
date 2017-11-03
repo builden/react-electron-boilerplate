@@ -2,20 +2,11 @@ import React, { Component } from 'react';
 import { MonacoEditor } from './ui';
 
 const defaultCode = `
-local ab, qux = function(efc) end, function(abc) 
-   local def = abc + 1
-   return def
-end
+local md = {
+  abc = 1
+}
 
-function add(xy, zf)
-
-   return xy + zf
-end
-
-function xad(xx)
-
-end
-
+md.abc = 2
 `;
 /* const defaultCode = `local abc = 456
 
