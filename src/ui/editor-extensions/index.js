@@ -3,6 +3,7 @@ import documentFormattingEditProvider from './lua/documentFormattingEditProvider
 import documentSymbolProvider from './lua/documentSymbolProvider';
 import definitionProvider from './lua/definitionProvider';
 import referenceProvider from './lua/referenceProvider';
+import renameProvider from './lua/renameProvider';
 import { docAnalyse } from './lua/analyser';
 
 let inited = false;
@@ -20,6 +21,7 @@ export default function registerProviders(monaco, editor) {
   docAnalyse(value);
   definitionProvider();
   referenceProvider();
+  renameProvider();
 
   // registerCompletionItemProvider -- 代码提示
   // registerDocumentFormattingEditProvider -- 全文本格式化 (Alt + Shift + O)
