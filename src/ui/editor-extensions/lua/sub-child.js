@@ -1,7 +1,6 @@
-const { formatText } = require('lua-fmt');
 const Analyser = require('./analyser');
 const findSymbols = require('./findSymbols');
-const { findDefNode, findReferenceNodes, getCompletionItems } = require('./helper');
+const { findDefNode, findReferenceNodes } = require('./helper');
 
 let changeAnalyser = null;
 
@@ -20,17 +19,14 @@ process.on('message', m => {
       } else if (m.channel === 'reference') {
         const nodes = findReferenceNodes(changeAnalyser.allIdentNodes, m.body.word, m.body.offset);
         rst.body = nodes.map(node => node.loc);
-      } else if (m.channel === 'luaDocumentFormatting') {
-        rst.body = formatLua(m.body);
       } else if (m.channel === 'completionItem') {
-        console.log('completionItem', m.body);
         const completionAnalyser = new Analyser(m.body.value, m.body.offset);
-        rst.body = getCompletionItems(completionAnalyser.globalScope, m.body.offset);
+        rst.body = completionAnalyser.getCompletionItems();
       }
 
       process.send(rst);
     } catch (e) {
-      console.error('sub-child catch', e);
+      // console.error('sub-child catch', e);
       process.send({
         id: m.id,
         code: -1,
@@ -38,14 +34,3 @@ process.on('message', m => {
     }
   }
 });
-
-function formatLua(body) {
-  console.log('formatLua', body);
-  const formatOptions = {
-    indentCount: body.tabSize || 4,
-    // lineWidth: 80,
-    // quotemark: 'single'
-  };
-  const text = formatText(body.value, formatOptions);
-  return text;
-}

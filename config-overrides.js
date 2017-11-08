@@ -24,6 +24,7 @@ module.exports = function override(config, env) {
     config = injectBabelPlugin('transform-decorators-legacy', config);
   } else {
     config = injectBabelPlugin('transform-decorators-legacy', config);
+    config.plugins.splice(3, 1); // remove UglifyJSPlugin, for 'lua-fmt'
   }
 
   config.plugins.push(

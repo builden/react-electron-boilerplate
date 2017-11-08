@@ -1,12 +1,24 @@
 /* global monaco */
 // 格式化代码
-import { request } from '../provider-child';
+import { formatText } from 'lua-fmt';
 
 export default function documentFormattingEditProvider() {
   monaco.languages.registerDocumentFormattingEditProvider('lua', {
     provideDocumentFormattingEdits: (model, options, token) => {
       return new Promise((resolve, reject) => {
-        request('luaDocumentFormatting', {
+        const formatOptions = {
+          indentCount: options.tabSize || 4,
+          // lineWidth: 80,
+          // quotemark: 'single'
+        };
+        try {
+          const text = formatText(model.getValue(), formatOptions);
+          resolve([{ range: model.getFullModelRange(), text }]);
+        } catch (e) {
+          resolve();
+        }
+
+        /*         request('luaDocumentFormatting', {
           tabSize: options.tabSize,
           value: model.getValue(),
         })
@@ -15,7 +27,7 @@ export default function documentFormattingEditProvider() {
           })
           .catch(e => {
             resolve();
-          });
+          }); */
       });
     },
   });
