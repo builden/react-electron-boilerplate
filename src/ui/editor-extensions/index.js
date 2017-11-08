@@ -1,10 +1,10 @@
-import completionItemProvider from './lua/completionItemProvider';
-import documentFormattingEditProvider from './lua/documentFormattingEditProvider';
-import documentSymbolProvider from './lua/documentSymbolProvider';
-import definitionProvider from './lua/definitionProvider';
-import referenceProvider from './lua/referenceProvider';
-import renameProvider from './lua/renameProvider';
-import { docAnalyse } from './lua/analyser';
+import completionItemProvider from './lua/Provider/completionItemProvider';
+import documentFormattingEditProvider from './lua/Provider/documentFormattingEditProvider';
+import documentSymbolProvider from './lua/Provider/documentSymbolProvider';
+import definitionProvider from './lua/Provider/definitionProvider';
+import referenceProvider from './lua/Provider/referenceProvider';
+import renameProvider from './lua/Provider/renameProvider';
+import { updateRealAnalyse } from './lua/realAnalyse';
 
 let inited = false;
 
@@ -12,13 +12,16 @@ export default function registerProviders(monaco, editor) {
   if (inited) return;
   inited = true;
 
+  updateRealAnalyse(editor.getValue());
+  editor.onDidChangeModelContent(e => {
+    updateRealAnalyse(editor.getValue());
+  });
+
   completionItemProvider();
   documentFormattingEditProvider();
 
   documentSymbolProvider();
 
-  const value = editor.getValue();
-  docAnalyse(value);
   definitionProvider();
   referenceProvider();
   renameProvider();

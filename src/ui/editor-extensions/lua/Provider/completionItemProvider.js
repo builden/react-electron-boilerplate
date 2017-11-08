@@ -1,7 +1,7 @@
 /* global monaco */
 // 函数提示
-import { getOffsetAt } from './comm';
-import { getCompletionItems, docAnalyse } from './analyser';
+import { getOffsetAt } from '../comm';
+import { request } from '../provider-child';
 
 const triggerCharacters = ['.', ':'];
 
@@ -17,15 +17,12 @@ export default function completionItemProvider() {
       });
       return new Promise((resolve, reject) => {
         const offset = getOffsetAt(model, position);
-        try {
-          docAnalyse(value, offset);
-        } catch (e) {}
-
         if (triggerCharacters.includes(lastChar)) {
           resolve();
         } else {
-          const completionItems = getCompletionItems(offset);
-          resolve(completionItems);
+          request('completionItem', { value, offset })
+            .then(completionItems => resolve(completionItems))
+            .catch(() => resolve());
         }
       });
     },

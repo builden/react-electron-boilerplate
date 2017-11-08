@@ -1,31 +1,31 @@
 /* global monaco */
 
-export function locToRange(loc) {
+exports.locToRange = function locToRange(loc) {
   return {
     startLineNumber: loc.start.line,
     startColumn: loc.start.column + 1,
     endLineNumber: loc.end.line,
     endColumn: loc.end.column + 1,
   };
-}
+};
 
-export function getOffsetAt(model, position) {
+exports.getOffsetAt = function getOffsetAt(model, position) {
   return monaco.editor.getModel(model.uri).getOffsetAt(position);
-}
+};
 
-export function getToLeftBoundaryCount(text, offset) {
+exports.getToLeftBoundaryCount = function getToLeftBoundaryCount(text, offset) {
   let i = offset - 1;
   const boundaryWords = ' \t\n\r\v":{[,]}()+-!';
   while (i >= 0 && boundaryWords.indexOf(text.charAt(i)) === -1) {
     i--;
   }
   return offset - i - 1;
-}
+};
 
-export function getCurrentWord(model, offset) {
+exports.getCurrentWord = function getCurrentWord(model, offset) {
   const text = monaco.editor.getModel(model.uri).getValue();
   let i = offset - 1;
-  const boundaryWords = ' \t\n\r\v":{[,]}()+-!';
+  const boundaryWords = ' \t\n\r\v":{[,]}()+-!.';
   while (i >= 0 && boundaryWords.indexOf(text.charAt(i)) === -1) {
     i--;
   }
@@ -34,10 +34,61 @@ export function getCurrentWord(model, offset) {
     j++;
   }
   return text.substring(i + 1, j);
-}
+};
 
-export function isOffsetInRange(offset, range) {
+exports.isOffsetInRange = function isOffsetInRange(offset, range) {
   if (!range) return false;
   const [start, end] = range;
   return offset >= start && offset <= end;
-}
+};
+
+exports.SymbolKind = {
+  File: 0,
+  Module: 1,
+  Namespace: 2,
+  Package: 3,
+  Class: 4,
+  Method: 5,
+  Property: 6,
+  Field: 7,
+  Constructor: 8,
+  Enum: 9,
+  Interface: 10,
+  Function: 11,
+  Variable: 12,
+  Constant: 13,
+  String: 14,
+  Number: 15,
+  Boolean: 16,
+  Array: 17,
+  Object: 18,
+  Key: 19,
+  Null: 20,
+  EnumMember: 21,
+  Struct: 22,
+  Event: 23,
+  Operator: 24,
+  TypeParameter: 25,
+};
+
+exports.CompletionItemKind = {
+  Text: 0,
+  Method: 1,
+  Function: 2,
+  Constructor: 3,
+  Field: 4,
+  Variable: 5,
+  Class: 6,
+  Interface: 7,
+  Module: 8,
+  Property: 9,
+  Unit: 10,
+  Value: 11,
+  Enum: 12,
+  Keyword: 13,
+  Snippet: 14,
+  Color: 15,
+  File: 16,
+  Reference: 17,
+  Folder: 18,
+};
