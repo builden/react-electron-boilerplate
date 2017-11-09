@@ -1,6 +1,22 @@
 const _ = require('lodash');
 const { CompletionItemKind } = require('./comm');
 const { findMatchedScope } = require('./helper');
+const luaSnippets = require('./snippets/snippets.json');
+
+function getSnippetItems() {
+  return Object.keys(luaSnippets).map(key => {
+    const item = luaSnippets[key];
+    return {
+      label: item.prefix,
+      kind: CompletionItemKind.Snippet,
+      insertText: {
+        value: item.body,
+      },
+      detail: item.description,
+      documentation: item.body,
+    };
+  });
+}
 
 function getCompletionItemsAtScope(scope) {
   const rst = [];
@@ -54,5 +70,7 @@ function getCompletionItemsAtScope(scope) {
 
 module.exports = function getGlobalCompletionItems(globalScope, offset) {
   const matchedScope = findMatchedScope(globalScope, offset);
-  return getCompletionItemsAtScope(matchedScope);
+  const items = getCompletionItemsAtScope(matchedScope);
+  items.push(...getSnippetItems());
+  return items;
 };
