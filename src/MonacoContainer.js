@@ -3,7 +3,9 @@ import { MonacoEditor } from './ui';
 
 const defaultCode = `
 local md = {
-  abc = 1
+  abc = 1,
+  cbd = 'str',
+  efg = { eee = 2, fff = 3 }
 }
 
 md.abc = 2

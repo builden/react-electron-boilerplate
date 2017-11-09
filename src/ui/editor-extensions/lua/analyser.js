@@ -15,8 +15,7 @@ class Analyser {
     this.ast = null;
     this.offset = offset;
     this.isTriggerChar = false;
-    this.tableNodes = {};
-    this.tableComp = {};
+    this.tableCompItems = {}; // {name: { props: [{ valueType, name }] }}
 
     if (offset) {
       const lastChar = value.charAt(offset - 1);
@@ -42,7 +41,12 @@ class Analyser {
   parseTableCtor(target, table) {
     table.fields.forEach(field => {
       if (field.type === 'TableKeyString') {
-        target.props.push({ valueType: field.value.type, name: field.key.name });
+        const name = field.key.name;
+        target.props[name] = { valueType: field.value.type };
+        if (field.value.type === 'TableConstructorExpression') {
+          target.props[name].props = {};
+          this.parseTableCtor(target.props[name], field.value);
+        }
       }
     });
   }
@@ -80,8 +84,8 @@ class Analyser {
             identNode.defIdx = identNode.nodes.indexOf(oneVar);
 
             if (node.init[idx].type === 'TableConstructorExpression') {
-              this.tableNodes[oneVar.name] = node.init[idx];
-              this.parseTableCtor(node.init[idx]);
+              this.tableCompItems[oneVar.name] = { props: {} };
+              this.parseTableCtor(this.tableCompItems[oneVar.name], node.init[idx]);
             }
           });
           this.cursorScope.completionNodes.push(node);
@@ -146,21 +150,40 @@ class Analyser {
     }
   }
 
+  getValueInitType(orignType) {
+    switch (orignType) {
+      case 'NumericLiteral':
+        return 'number';
+      case 'StringLiteral':
+        return 'string';
+      case 'TableConstructorExpression':
+        return 'table';
+      default:
+        return 'any';
+    }
+  }
+
   getCompletionItems() {
     if (this.isTriggerChar) {
       const rst = [];
+      let curCursor = { props: this.tableCompItems };
       for (let i = this.containerNames.length - 1; i >= 0; i--) {
         const name = this.containerNames[i];
-        if (_.has(this.tableNodes, this.containerNames[i])) {
-          this.tableNodes[name].fields.forEach(field => {
-            if (field.type === 'TableKeyString') {
+        if (_.has(curCursor.props, name)) {
+          const prop = curCursor.props[name];
+          if (i === 0) {
+            Object.keys(prop.props).forEach(name => {
               rst.push({
-                label: field.key.name,
+                label: name,
                 kind: CompletionItemKind.Property,
-                detail: `(property) ${field.key.name}: any`,
+                detail: `(property) ${name}: ${this.getValueInitType(prop.props[name].valueType)}`,
               });
-            }
-          });
+            });
+          } else {
+            curCursor = curCursor.props[name];
+          }
+        } else {
+          break;
         }
       }
       return rst;
