@@ -1,20 +1,6 @@
 const _ = require('lodash');
-const { isOffsetInRange, CompletionItemKind } = require('./comm');
-
-function getMatchedScope(currScope, offset) {
-  let rst = currScope;
-  for (const childScope of currScope.childScopes) {
-    if (isOffsetInRange(offset, childScope.range)) {
-      rst = getMatchedScope(childScope, offset);
-      break;
-    }
-  }
-  return rst;
-}
-
-function findMatchedScope(globalScope, offset) {
-  return getMatchedScope(globalScope, offset);
-}
+const { CompletionItemKind } = require('./comm');
+const { findMatchedScope } = require('./helper');
 
 function getCompletionItemsAtScope(scope) {
   const rst = [];

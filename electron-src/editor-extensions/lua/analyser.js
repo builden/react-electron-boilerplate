@@ -3,7 +3,7 @@ const luaparse = require('luaparse');
 const Scope = require('./Scope');
 const { getToLeftBoundaryCount } = require('./comm');
 const getGlobalCompletionItems = require('./getGlobalCompletionItems');
-const { CompletionItemKind } = require('./comm');
+const getTriggerCompletionItems = require('./getTriggerCompletionItems');
 
 const triggerCharacters = ['.', ':'];
 
@@ -84,8 +84,8 @@ class Analyser {
             identNode.defIdx = identNode.nodes.indexOf(oneVar);
 
             if (node.init[idx].type === 'TableConstructorExpression') {
-              this.tableCompItems[oneVar.name] = { props: {} };
-              this.parseTableCtor(this.tableCompItems[oneVar.name], node.init[idx]);
+              this.cursorScope.tableCompItems[oneVar.name] = { props: {} };
+              this.parseTableCtor(this.cursorScope.tableCompItems[oneVar.name], node.init[idx]);
             }
           });
           this.cursorScope.completionNodes.push(node);
@@ -150,43 +150,9 @@ class Analyser {
     }
   }
 
-  getValueInitType(orignType) {
-    switch (orignType) {
-      case 'NumericLiteral':
-        return 'number';
-      case 'StringLiteral':
-        return 'string';
-      case 'TableConstructorExpression':
-        return 'table';
-      default:
-        return 'any';
-    }
-  }
-
   getCompletionItems() {
     if (this.isTriggerChar) {
-      const rst = [];
-      let curCursor = { props: this.tableCompItems };
-      for (let i = this.containerNames.length - 1; i >= 0; i--) {
-        const name = this.containerNames[i];
-        if (_.has(curCursor.props, name)) {
-          const prop = curCursor.props[name];
-          if (i === 0) {
-            Object.keys(prop.props).forEach(name => {
-              rst.push({
-                label: name,
-                kind: CompletionItemKind.Property,
-                detail: `(property) ${name}: ${this.getValueInitType(prop.props[name].valueType)}`,
-              });
-            });
-          } else {
-            curCursor = curCursor.props[name];
-          }
-        } else {
-          break;
-        }
-      }
-      return rst;
+      return getTriggerCompletionItems(this.globalScope, this.offset, this.containerNames);
     } else {
       return getGlobalCompletionItems(this.globalScope, this.offset);
     }

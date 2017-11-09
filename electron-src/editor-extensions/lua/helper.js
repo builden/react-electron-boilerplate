@@ -67,3 +67,18 @@ exports.findReferenceNodes = function findReferenceNodes(allIdentNodes, name, of
   }
   return null;
 };
+
+function getMatchedScope(currScope, offset) {
+  let rst = currScope;
+  for (const childScope of currScope.childScopes) {
+    if (isOffsetInRange(offset, childScope.range)) {
+      rst = getMatchedScope(childScope, offset);
+      break;
+    }
+  }
+  return rst;
+}
+
+exports.findMatchedScope = function findMatchedScope(globalScope, offset) {
+  return getMatchedScope(globalScope, offset);
+};

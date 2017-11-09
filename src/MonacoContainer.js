@@ -3,12 +3,20 @@ import { MonacoEditor } from './ui';
 
 const defaultCode = `
 local md = {
-  abc = 1,
-  cbd = 'str',
-  efg = { eee = 2, fff = 3 }
+  xxx = 3
 }
 
-md.abc = 2
+function func()
+  local md = {
+    abc = 1,
+    cbd = "str",
+    efg = {eee = 2, fff = 3}
+  }
+end
+
+function func2()
+end
+
 `;
 /* const defaultCode = `local abc = 456
 

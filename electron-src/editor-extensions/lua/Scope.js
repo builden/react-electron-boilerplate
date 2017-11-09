@@ -6,6 +6,7 @@ class Scope {
     this.childIdx = -1; // 在父scope中的索引顺序
     this.range = null;
     this.parentScope = null;
+    this.tableCompItems = {};
   }
 }
 
