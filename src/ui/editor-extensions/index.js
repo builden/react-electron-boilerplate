@@ -8,14 +8,9 @@ import { updateRealAnalyse } from './lua/realAnalyse';
 
 let inited = false;
 
-export default function registerProviders(monaco, editor) {
+export function registerProviders(monaco) {
   if (inited) return;
   inited = true;
-
-  updateRealAnalyse(editor.getValue());
-  editor.onDidChangeModelContent(e => {
-    updateRealAnalyse(editor.getValue());
-  });
 
   completionItemProvider();
   documentFormattingEditProvider();
@@ -38,4 +33,13 @@ export default function registerProviders(monaco, editor) {
   // registerImplementationProvider -- 跳转到实现
   // registerTypeDefinitionProvider -- 跳转到类型定义，ts里可跳转到interface
   // registerLinkProvider -- 超链接检测
+}
+
+export function watchContent(editor, lang) {
+  if (lang === 'lua') {
+    updateRealAnalyse(editor.model.id, editor.getValue());
+    editor.onDidChangeModelContent(e => {
+      updateRealAnalyse(editor.model.id, editor.getValue());
+    });
+  }
 }

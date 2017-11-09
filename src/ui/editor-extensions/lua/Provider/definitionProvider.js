@@ -9,6 +9,7 @@ export default function definitionProvider() {
         const offset = getOffsetAt(model, position);
         const word = getCurrentWord(model, offset);
         request('definition', {
+          modelId: model.id,
           word,
           offset,
         })

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import registerProviders from './editor-extensions';
+import { registerProviders, watchContent } from './editor-extensions';
 
 function noop() {}
 
@@ -86,12 +86,12 @@ class MonacoEditor extends React.Component {
         if (!context.amdRequire) context.amdRequire = context.require;
         context.amdRequire(['vs/editor/editor.main'], () => {
           this.initMonaco();
-          registerProviders(context.monaco, this.editor);
+          registerProviders(context.monaco);
         });
       } else {
         context.require(['vs/editor/editor.main'], () => {
           this.initMonaco();
-          registerProviders(context.monaco, this.editor);
+          registerProviders(context.monaco);
         });
       }
 
@@ -164,6 +164,7 @@ class MonacoEditor extends React.Component {
       }
       // After initializing monaco editor
       this.editorDidMount(this.editor, context.monaco);
+      watchContent(this.editor, language);
     }
   }
 

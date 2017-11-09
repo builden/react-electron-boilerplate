@@ -8,7 +8,7 @@ export default function referenceProvider() {
       return new Promise((resolve, reject) => {
         const offset = getOffsetAt(model, position);
         const word = getCurrentWord(model, offset);
-        request('reference', { word, offset })
+        request('reference', { word, offset, modelId: model.id })
           .then(locs =>
             resolve(
               locs.map(loc => ({
