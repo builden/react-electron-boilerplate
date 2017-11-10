@@ -6,17 +6,7 @@ local md = {
   xxx = 3
 }
 
-function func()
-  local md = {
-    abc = 1,
-    cbd = "str",
-    efg = {eee = 2, fff = 3}
-  }
-end
-
-function func2()
-end
-
+function md.func() end
 `;
 /* const defaultCode = `local abc = 456
 

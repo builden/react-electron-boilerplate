@@ -5,13 +5,30 @@ const { CompletionItemKind } = require('./comm');
 function getValueInitType(orignType) {
   switch (orignType) {
     case 'NumericLiteral':
-      return 'number';
+      return {
+        kind: CompletionItemKind.Property,
+        name: 'number',
+      };
     case 'StringLiteral':
-      return 'string';
+      return {
+        kind: CompletionItemKind.Property,
+        name: 'string',
+      };
     case 'TableConstructorExpression':
-      return 'table';
+      return {
+        kind: CompletionItemKind.Module,
+        name: 'table',
+      };
+    case 'FunctionDeclaration':
+      return {
+        kind: CompletionItemKind.Function,
+        name: 'function',
+      };
     default:
-      return 'any';
+      return {
+        kind: CompletionItemKind.Property,
+        name: 'any',
+      };
   }
 }
 
@@ -28,14 +45,19 @@ function getCompletionItemsAtScope(scope, containerNames) {
       const prop = curCursor.props[name];
       if (i === 0) {
         Object.keys(prop.props).forEach(name => {
-          rst.push({
+          const { valueType } = prop.props[name];
+          const typeInfo = getValueInitType(valueType);
+          const isFunc = valueType === 'FunctionDeclaration';
+          const item = {
             label: name,
-            kind: CompletionItemKind.Property,
-            detail: `(property) ${name}: ${getValueInitType(prop.props[name].valueType)}`,
-          });
+            kind: typeInfo.kind,
+            detail: `(property) ${name}: ${typeInfo.name}`,
+          };
+          if (isFunc) item.detail = `function ${name}(${prop.props[name].params.join(', ')})`;
+          rst.push(item);
         });
       } else {
-        curCursor = curCursor.props[name];
+        curCursor = prop;
       }
     } else {
       break;

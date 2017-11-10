@@ -51,6 +51,25 @@ class Analyser {
     });
   }
 
+  parseTableFunc(node) {
+    const containerNames = this.getContainerNames(node.identifier);
+    const params = node.parameters.map(param => param.name);
+    let curCursor = this.cursorScope.tableCompItems;
+
+    for (let i = containerNames.length - 1; i >= 0; i--) {
+      const name = containerNames[i];
+      if (i === 0) {
+        if (!_.has(curCursor, name)) curCursor[name] = {};
+        curCursor[name].valueType = 'FunctionDeclaration';
+        curCursor[name].params = params;
+      } else {
+        if (!_.has(curCursor, name)) curCursor[name] = { props: {} };
+        else if (!_.has(curCursor[name], 'props')) curCursor[name].props = {};
+        curCursor = curCursor[name].props;
+      }
+    }
+  }
+
   docAnalyse(value, offset) {
     this.globalScope = null;
     this.cursorScope = null;
@@ -101,10 +120,14 @@ class Analyser {
           lastChildScope.loc = node.loc;
 
           if (node.identifier) {
-            const funcName = node.identifier.name;
-            const identNode = this.cursorScope.identNodes[funcName];
-            identNode.defIdx = identNode.nodes.indexOf(node.identifier);
-            this.cursorScope.completionNodes.push(node);
+            if (node.identifier.type === 'Identifier') {
+              const funcName = node.identifier.name;
+              const identNode = this.cursorScope.identNodes[funcName];
+              identNode.defIdx = identNode.nodes.indexOf(node.identifier);
+              this.cursorScope.completionNodes.push(node);
+            } else if (node.identifier.type === 'MemberExpression') {
+              this.parseTableFunc(node);
+            }
           }
         } else if (this.isTriggerChar && node.type === 'CallExpression' && node.base.type === 'MemberExpression') {
           const name = node.base.identifier.name;
