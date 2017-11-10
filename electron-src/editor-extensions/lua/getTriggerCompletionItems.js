@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { findMatchedScope } = require('./helper');
 const { CompletionItemKind } = require('./comm');
+const { getXlua } = require('./xlua');
 
 function getValueInitType(orignType) {
   switch (orignType) {
@@ -67,6 +68,10 @@ function getCompletionItemsAtScope(scope, containerNames) {
 }
 
 module.exports = function getTriggerCompletionItems(globalScope, offset, containerNames) {
+  if (containerNames[containerNames.length - 1] === 'CS') {
+    const xlua = getXlua();
+    return getCompletionItemsAtScope(xlua.globalScope, containerNames);
+  }
   const matchedScope = findMatchedScope(globalScope, offset);
   return getCompletionItemsAtScope(matchedScope, containerNames);
 };

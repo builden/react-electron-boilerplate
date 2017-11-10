@@ -15,7 +15,6 @@ class Analyser {
     this.ast = null;
     this.offset = offset;
     this.isTriggerChar = false;
-    this.tableCompItems = {}; // {name: { props: [{ valueType, name }] }}
 
     if (offset) {
       const lastChar = value.charAt(offset - 1);

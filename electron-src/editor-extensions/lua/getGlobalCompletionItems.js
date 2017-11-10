@@ -71,6 +71,7 @@ function getCompletionItemsAtScope(scope) {
 module.exports = function getGlobalCompletionItems(globalScope, offset) {
   const matchedScope = findMatchedScope(globalScope, offset);
   const items = getCompletionItemsAtScope(matchedScope);
+  items.push({ label: 'CS', kind: CompletionItemKind.Class });
   items.push(...getSnippetItems());
   return items;
 };

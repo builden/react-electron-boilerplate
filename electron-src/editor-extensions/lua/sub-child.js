@@ -1,8 +1,10 @@
 const Analyser = require('./analyser');
 const findSymbols = require('./findSymbols');
 const { findDefNode, findReferenceNodes } = require('./helper');
+const { initXlua } = require('./xlua');
 
 const changeAnalyser = {};
+initXlua();
 
 process.on('message', m => {
   if (m.id) {
