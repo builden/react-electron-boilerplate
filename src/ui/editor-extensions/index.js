@@ -4,7 +4,7 @@ import documentSymbolProvider from './lua/Provider/documentSymbolProvider';
 import definitionProvider from './lua/Provider/definitionProvider';
 import referenceProvider from './lua/Provider/referenceProvider';
 import renameProvider from './lua/Provider/renameProvider';
-import { updateRealAnalyse } from './lua/realAnalyse';
+import { updateRealAnalyse } from './lua/updateRealAnalyse';
 
 let inited = false;
 
@@ -37,9 +37,9 @@ export function registerProviders(monaco) {
 
 export function watchContent(editor, lang) {
   if (lang === 'lua') {
-    updateRealAnalyse(editor.model.id, editor.getValue());
+    updateRealAnalyse(editor);
     editor.onDidChangeModelContent(e => {
-      updateRealAnalyse(editor.model.id, editor.getValue());
+      updateRealAnalyse(editor);
     });
   }
 }

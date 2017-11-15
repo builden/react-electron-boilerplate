@@ -13,7 +13,7 @@ class ForkChild {
         if (m.code === 0) {
           this.requests[m.id].resolve(m.body);
         } else {
-          this.requests[m.id].reject(m.code, m.msg);
+          this.requests[m.id].reject(m);
         }
       }
     });

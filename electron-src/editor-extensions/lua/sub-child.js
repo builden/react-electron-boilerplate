@@ -11,7 +11,12 @@ process.on('message', m => {
     try {
       const rst = { id: m.id, code: 0 };
       if (m.channel === 'onDidChangeModelContent') {
-        changeAnalyser[m.body.modelId] = new Analyser(m.body.value);
+        try {
+          changeAnalyser[m.body.modelId] = new Analyser(m.body.value);
+        } catch (err) {
+          rst.code = -1;
+          rst.msg = err.message;
+        }
       } else if (m.channel === 'symbol') {
         const symbols = findSymbols(changeAnalyser[m.body.modelId].ast);
         rst.body = symbols;
