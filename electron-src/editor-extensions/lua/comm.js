@@ -22,6 +22,20 @@ exports.getToLeftBoundaryCount = function getToLeftBoundaryCount(text, offset) {
   return offset - i - 1;
 };
 
+exports.getToLeftSignatureBoundaryCount = function getToLeftSignatureBoundaryCount(text, offset) {
+  let i = offset - 1;
+  const boundaryWords = ' \t\n\r\v,';
+  let isAfterComma = false;
+  while (i >= 0 && !(boundaryWords.indexOf(text.charAt(i)) === -1)) {
+    if (text.charAt(i) === ',') isAfterComma = true;
+    i--;
+  }
+  return {
+    offsetCount: offset - i - 1,
+    isAfterComma,
+  };
+};
+
 exports.getCurrentWord = function getCurrentWord(model, offset) {
   const text = monaco.editor.getModel(model.uri).getValue();
   let i = offset - 1;
@@ -40,6 +54,19 @@ exports.isOffsetInRange = function isOffsetInRange(offset, range) {
   if (!range) return false;
   const [start, end] = range;
   return offset >= start && offset <= end;
+};
+
+exports.getContainerNames = function getContainerNames(node) {
+  const rst = [];
+  if (node) {
+    if (node.type === 'Identifier') {
+      rst.push(node.name);
+    } else if (node.type === 'MemberExpression' && node.identifier) {
+      rst.push(node.identifier.name);
+      rst.push(...getContainerNames(node.base));
+    }
+  }
+  return rst;
 };
 
 exports.SymbolKind = {

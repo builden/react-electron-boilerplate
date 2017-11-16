@@ -29,6 +29,9 @@ process.on('message', m => {
       } else if (m.channel === 'completionItem') {
         const completionAnalyser = new Analyser(m.body.value, m.body.offset);
         rst.body = completionAnalyser.getCompletionItems();
+      } else if (m.channel === 'signature') {
+        const signatureAnalyser = new Analyser(m.body.value, m.body.offset, true);
+        rst.body = signatureAnalyser.getSignature();
       }
 
       process.send(rst);

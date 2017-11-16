@@ -1,40 +1,30 @@
 const _ = require('lodash');
 const luaparse = require('luaparse');
 const Scope = require('./Scope');
-const { getToLeftBoundaryCount } = require('./comm');
+const { getToLeftBoundaryCount, getToLeftSignatureBoundaryCount, getContainerNames } = require('./comm');
 const getGlobalCompletionItems = require('./getGlobalCompletionItems');
 const getTriggerCompletionItems = require('./getTriggerCompletionItems');
+const getSignatureItems = require('./getSignatureItems');
 
 const triggerCharacters = ['.', ':'];
 
 class Analyser {
-  constructor(value, offset) {
+  constructor(value, offset, isSignature) {
     this.globalScope = null;
     this.cursorScope = null;
     this.allIdentNodes = {};
     this.ast = null;
     this.offset = offset;
     this.isTriggerChar = false;
+    this.isSignature = isSignature;
 
     if (offset) {
       const lastChar = value.charAt(offset - 1);
       this.isTriggerChar = triggerCharacters.includes(lastChar);
+      if (lastChar === ')') this.isSignatureEnd = true;
     }
 
     this.docAnalyse(value, offset);
-  }
-
-  getContainerNames(node) {
-    const rst = [];
-    if (node) {
-      if (node.type === 'Identifier') {
-        rst.push(node.name);
-      } else if (node.type === 'MemberExpression' && node.identifier) {
-        rst.push(node.identifier.name);
-        rst.push(...this.getContainerNames(node.base));
-      }
-    }
-    return rst;
   }
 
   parseTableCtor(target, table) {
@@ -51,7 +41,7 @@ class Analyser {
   }
 
   parseTableFunc(node) {
-    const containerNames = this.getContainerNames(node.identifier);
+    const containerNames = getContainerNames(node.identifier);
     const params = node.parameters.map(param => param.name);
     let curCursor = this.cursorScope.tableCompItems;
 
@@ -124,14 +114,17 @@ class Analyser {
               const identNode = this.cursorScope.identNodes[funcName];
               identNode.defIdx = identNode.nodes.indexOf(node.identifier);
               this.cursorScope.completionNodes.push(node);
-            } else if (node.identifier.type === 'MemberExpression') {
-              this.parseTableFunc(node);
             }
+            this.parseTableFunc(node);
           }
-        } else if (this.isTriggerChar && node.type === 'CallExpression' && node.base.type === 'MemberExpression') {
-          const name = node.base.identifier.name;
-          if (name === '__completion_helper__') {
-            this.containerNames = this.getContainerNames(node.base.base);
+        } else if (node.type === 'CallExpression') {
+          if (this.isTriggerChar && node.base.type === 'MemberExpression') {
+            const name = node.base.identifier.name;
+            if (name === '__completion_helper__') {
+              this.containerNames = getContainerNames(node.base.base);
+            }
+          } else {
+            this.cursorScope.callNodes.push(node);
           }
         }
       },
@@ -155,7 +148,19 @@ class Analyser {
     });
 
     if (offset) {
-      if (this.isTriggerChar) {
+      if (this.isSignature) {
+        const { offsetCount, isAfterComma } = getToLeftSignatureBoundaryCount(value, offset);
+
+        const startOffset = offset - offsetCount;
+        const endOffset = offset;
+        this.offsetCount = offsetCount;
+        this.isAfterComma = isAfterComma;
+
+        console.log('text:', this.offsetCount, value.substring(0, startOffset) + value.substring(endOffset));
+
+        luaparse.write(value.substring(0, startOffset));
+        this.ast = luaparse.end(value.substring(endOffset));
+      } else if (this.isTriggerChar) {
         this.isTriggerChar = true;
         luaparse.write(value.substring(0, offset));
         luaparse.write('__completion_helper__()');
@@ -178,6 +183,11 @@ class Analyser {
     } else {
       return getGlobalCompletionItems(this.globalScope, this.offset);
     }
+  }
+
+  getSignature() {
+    if (this.isSignatureEnd) return {};
+    return getSignatureItems(this.globalScope, this.offset - this.offsetCount, this.allIdentNodes, this.isAfterComma);
   }
 }
 

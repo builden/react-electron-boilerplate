@@ -4,6 +4,7 @@ import documentSymbolProvider from './lua/Provider/documentSymbolProvider';
 import definitionProvider from './lua/Provider/definitionProvider';
 import referenceProvider from './lua/Provider/referenceProvider';
 import renameProvider from './lua/Provider/renameProvider';
+import signatureHelpProvider from './lua/Provider/signatureHelpProvider';
 import { updateRealAnalyse } from './lua/updateRealAnalyse';
 
 let inited = false;
@@ -20,6 +21,7 @@ export function registerProviders(monaco) {
   definitionProvider();
   referenceProvider();
   renameProvider();
+  signatureHelpProvider();
 
   // registerCompletionItemProvider -- 代码提示
   // registerDocumentFormattingEditProvider -- 全文本格式化 (Alt + Shift + O)

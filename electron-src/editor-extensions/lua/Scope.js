@@ -7,6 +7,7 @@ class Scope {
     this.range = null;
     this.parentScope = null;
     this.tableCompItems = {};
+    this.callNodes = []; // CallExpression
   }
 }
 
