@@ -3,6 +3,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
 const program = require('commander');
 const version = require('./package.json').version;
+const rewireLess = require('react-app-rewire-less');
 
 const inDev = process.env.NODE_ENV === 'development';
 
@@ -26,6 +27,15 @@ module.exports = function override(config, env) {
     config = injectBabelPlugin('transform-decorators-legacy', config);
     config.plugins.splice(3, 1); // remove UglifyJSPlugin, for 'lua-fmt'
   }
+
+  config = injectBabelPlugin(['import', { libraryName: 'antd', style: true }], config);
+  config = rewireLess.withLoaderOptions({
+    modifyVars: {
+      '@primary-color': 'red',
+      '@font-size-base': '14px',
+      '@icon-url': '"~antd-iconfont/iconfont"',
+    },
+  })(config, env);
 
   config.plugins.push(
     new webpack.DefinePlugin({

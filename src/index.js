@@ -5,6 +5,7 @@ import registerServiceWorker from './registerServiceWorker';
 
 async function start() {
   const startPage = process.env.START_PAGE || 'App';
+  console.log('startPage', startPage);
   try {
     const StartComponent = (await import(`./${startPage}`)).default;
     ReactDOM.render(<StartComponent />, document.getElementById('root'));
