@@ -62,16 +62,17 @@ class MonacoEditor extends React.Component {
     });
   }
 
-  afterViewInit() {
+  afterViewInit = () => {
     const context = this.props.context || window;
-
-    const inElectron = context.process && context.process.type === 'renderer';
-
     if (context.monaco !== undefined) {
       this.initMonaco();
       return;
     }
     const { requireConfig } = this.props;
+
+    // Checking that the process is a renderer may be overly specific
+    const inElectron = context.process && context.process.type === 'renderer';
+
     const loaderUrl = requireConfig.url || 'vs/loader.js';
     const onGotAmdLoader = () => {
       if (context.__REACT_MONACO_EDITOR_LOADER_ISPENDING__) {
@@ -83,8 +84,8 @@ class MonacoEditor extends React.Component {
 
       // Load monaco
       if (inElectron) {
-        if (!context.amdRequire) context.amdRequire = context.require;
-        context.amdRequire(['vs/editor/editor.main'], () => {
+        if (!context.electronNodeRequire) context.electronNodeRequire = context.require;
+        context.electronNodeRequire(['vs/editor/editor.main'], () => {
           this.initMonaco();
           registerProviders(context.monaco);
         });
@@ -99,8 +100,10 @@ class MonacoEditor extends React.Component {
       if (context.__REACT_MONACO_EDITOR_LOADER_ISPENDING__) {
         context.__REACT_MONACO_EDITOR_LOADER_ISPENDING__ = false;
         const loaderCallbacks = context.__REACT_MONACO_EDITOR_LOADER_CALLBACKS__;
+
         if (loaderCallbacks && loaderCallbacks.length) {
           let currentCallback = loaderCallbacks.shift();
+
           while (currentCallback) {
             currentCallback.fn.call(currentCallback.context);
             currentCallback = loaderCallbacks.shift();
@@ -119,7 +122,10 @@ class MonacoEditor extends React.Component {
         context: this,
         fn: onGotAmdLoader,
       });
-    } else if ((inElectron && typeof context.amdRequire === 'undefined') || typeof context.require === 'undefined') {
+    } else if (
+      (inElectron && typeof context.electronNodeRequire === 'undefined') ||
+      typeof context.require === 'undefined'
+    ) {
       const nodeRequire = window.require;
       let electronVersion = null;
       if (inElectron) {
@@ -134,7 +140,7 @@ class MonacoEditor extends React.Component {
       loaderScript.src = loaderUrl;
       loaderScript.addEventListener('load', () => {
         if (inElectron) {
-          if (!context.amdRequire) context.amdRequire = context.require;
+          if (!context.electronNodeRequire) context.electronNodeRequire = context.require;
           window.process.versions.electron = electronVersion;
           context.require = nodeRequire;
         }
@@ -145,7 +151,7 @@ class MonacoEditor extends React.Component {
     } else {
       onGotAmdLoader();
     }
-  }
+  };
 
   initMonaco() {
     const value = this.props.value !== null ? this.props.value : this.props.defaultValue;

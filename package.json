@@ -28,7 +28,7 @@
     "copy-webpack-plugin": "^4.2.0",
     "cross-env": "^5.1.1",
     "electron": "^1.7.9",
-    "electron-builder": "^19.45.4",
+    "electron-builder": "^19.45.5",
     "electron-devtools-installer": "^2.2.1",
     "lodash": "^4.17.4",
     "lua-fmt": "^2.4.0",

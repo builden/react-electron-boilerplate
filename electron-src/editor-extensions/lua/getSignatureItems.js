@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const { isOffsetInRange, getContainerNames } = require('./comm');
 const { findMatchedScope } = require('./helper');
+const { getXlua } = require('./xlua');
 
 function findMatchedNode(scope, offset) {
   for (const node of scope.callNodes) {
@@ -21,7 +22,6 @@ function getSignatureItemsAtScope(scope, containerNames) {
     if (_.has(curCursor.props, name)) {
       const prop = curCursor.props[name];
       if (i === 0) {
-        console.log('getSignatureItemsAtScope prop', prop);
         const item = {
           label: `${name}(${prop.params.join(', ')})`,
           parameters: prop.params.map(param => ({ label: param })),
@@ -43,7 +43,14 @@ module.exports = function getSignatureItems(globalScope, offset, allIdentNodes, 
   const matchedNode = findMatchedNode(matchedScope, offset);
   const containerNames = getContainerNames(matchedNode.base);
 
-  const signatures = getSignatureItemsAtScope(matchedScope, containerNames);
+  let signatures = null;
+  if (containerNames[containerNames.length - 1] === 'CS') {
+    const xlua = getXlua();
+    signatures = getSignatureItemsAtScope(xlua.globalScope, containerNames);
+  } else {
+    signatures = getSignatureItemsAtScope(matchedScope, containerNames);
+  }
+
   let activeParameter = 0;
   const argLen = matchedNode.arguments.length;
   if (argLen > 0) {

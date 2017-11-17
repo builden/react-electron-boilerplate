@@ -6,7 +6,6 @@ export default function signatureHelpProvider() {
   monaco.languages.registerSignatureHelpProvider('lua', {
     signatureHelpTriggerCharacters: ['(', ','],
     provideSignatureHelp(model, position, token) {
-      console.log('provideSignatureHelp');
       return new Promise((resolve, reject) => {
         const value = model.getValue();
         const offset = getOffsetAt(model, position);

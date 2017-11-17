@@ -156,8 +156,6 @@ class Analyser {
         this.offsetCount = offsetCount;
         this.isAfterComma = isAfterComma;
 
-        console.log('text:', this.offsetCount, value.substring(0, startOffset) + value.substring(endOffset));
-
         luaparse.write(value.substring(0, startOffset));
         this.ast = luaparse.end(value.substring(endOffset));
       } else if (this.isTriggerChar) {
