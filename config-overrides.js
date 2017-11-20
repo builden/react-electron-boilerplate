@@ -1,3 +1,4 @@
+const path = require('path');
 const { injectBabelPlugin, getBabelLoader } = require('react-app-rewired');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const webpack = require('webpack');
@@ -6,12 +7,53 @@ const version = require('./package.json').version;
 const rewireLess = require('react-app-rewire-less');
 
 const inDev = process.env.NODE_ENV === 'development';
+const phaserModule = path.join(__dirname, './node_modules/phaser-ce/');
+const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
+const pixi = path.join(phaserModule, 'build/custom/pixi.js');
+const p2 = path.join(phaserModule, 'build/custom/p2.js');
 
 program
   .version(version)
   .option('-s, --start <name>', 'start page')
   .option('-w, --web', 'show at web')
   .parse(process.argv);
+
+function injectAntd(config, env) {
+  config = injectBabelPlugin(['import', { libraryName: 'antd', style: true }], config);
+  config = rewireLess.withLoaderOptions({
+    modifyVars: {
+      '@font-size-base': '14px',
+      '@icon-url': '"~antd-iconfont/iconfont"',
+    },
+  })(config, env);
+}
+
+function injectPhaser(config) {
+  Object.assign(config.resolve.alias, {
+    phaser: phaser,
+    'phaser-ce': phaser,
+    'pixi.js': pixi,
+    pixi: pixi,
+    p2: p2,
+  });
+
+  config.module.rules[1].oneOf.splice(
+    0,
+    0,
+    {
+      test: /pixi\.js/,
+      use: [{ loader: 'expose-loader?PIXI' }],
+    },
+    {
+      test: /p2\.js/,
+      use: [{ loader: 'expose-loader?p2' }],
+    },
+    {
+      test: /phaser-split\.js/,
+      use: [{ loader: 'expose-loader?Phaser' }],
+    }
+  );
+}
 
 module.exports = function override(config, env) {
   if (!program.web) config.target = 'electron-renderer';
@@ -28,14 +70,8 @@ module.exports = function override(config, env) {
     config.plugins.splice(3, 1); // remove UglifyJSPlugin, for 'lua-fmt'
   }
 
-  config = injectBabelPlugin(['import', { libraryName: 'antd', style: true }], config);
-  config = rewireLess.withLoaderOptions({
-    modifyVars: {
-      '@primary-color': 'red',
-      '@font-size-base': '14px',
-      '@icon-url': '"~antd-iconfont/iconfont"',
-    },
-  })(config, env);
+  injectPhaser(config);
+  injectAntd(config, env);
 
   config.plugins.push(
     new webpack.DefinePlugin({

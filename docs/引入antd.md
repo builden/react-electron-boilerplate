@@ -11,14 +11,15 @@ $ yarn add react-app-rewire-less -D
 ```js
 const rewireLess = require('react-app-rewire-less');
 
-config = injectBabelPlugin(['import', { libraryName: 'antd', style: true }], config);
-config = rewireLess.withLoaderOptions({
-  modifyVars: {
-    '@primary-color': 'red',
-    '@font-size-base': '14px',
-    '@icon-url': '"~antd-iconfont/iconfont"',
-  },
-})(config, env);
+function injectAntd(config, env) {
+  config = injectBabelPlugin(['import', { libraryName: 'antd', style: true }], config);
+  config = rewireLess.withLoaderOptions({
+    modifyVars: {
+      '@font-size-base': '14px',
+      '@icon-url': '"~antd-iconfont/iconfont"',
+    },
+  })(config, env);
+}
 ```
 
 ## 参考
