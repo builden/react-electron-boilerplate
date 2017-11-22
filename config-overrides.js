@@ -14,7 +14,7 @@ const p2 = path.join(phaserModule, 'build/custom/p2.js');
 
 program
   .version(version)
-  .option('-s, --start <name>', 'start page')
+  .option('-i, --index <name>', 'change index js file')
   .option('-w, --web', 'show at web')
   .parse(process.argv);
 
@@ -57,6 +57,9 @@ function injectPhaser(config) {
 
 module.exports = function override(config, env) {
   if (!program.web) config.target = 'electron-renderer';
+
+  if (program.index)
+    config.entry[config.entry.length - 1] = path.join(__dirname, `./src/TestIndex/${program.index}.js`);
 
   if (inDev) {
     const loader = getBabelLoader(config.module.rules);

@@ -14,7 +14,7 @@
   "main": "electron-src/main.js",
   "scripts": {
     "start": "cross-env PORT=3011 react-app-rewired start",
-    "start:web": "cross-env PORT=3012 react-app-rewired start -s PhaserTest -w",
+    "start:web": "yarn start -w",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
     "eject": "react-scripts eject",
