@@ -80,7 +80,6 @@ module.exports = function override(config, env) {
     new webpack.DefinePlugin({
       'process.env': {
         VERSION: JSON.stringify(version),
-        START_PAGE: JSON.stringify(program.start),
       },
     }),
     new CopyWebpackPlugin([
