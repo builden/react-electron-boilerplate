@@ -206,7 +206,7 @@ function getSignatureItemsAtScope(scope, containerNames) {
         if (item.propName === name && item.propType === 'Function') {
           rst.push({
             label: `${name}(${transParams(item.params)})`,
-            parameters: item.params.map(param => ({ label: param.name })),
+            parameters: item.params.map(param => ({ label: `${param.name}: ${transType(param.paramType)}` })),
           });
         }
       });

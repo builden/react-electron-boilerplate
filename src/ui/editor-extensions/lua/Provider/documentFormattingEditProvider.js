@@ -1,6 +1,7 @@
 /* global monaco */
 // 格式化代码
 import { formatText } from 'lua-fmt';
+import { format } from 'prettier';
 
 export default function documentFormattingEditProvider() {
   monaco.languages.registerDocumentFormattingEditProvider('lua', {
@@ -17,17 +18,19 @@ export default function documentFormattingEditProvider() {
         } catch (e) {
           resolve();
         }
+      });
+    },
+  });
 
-        /*         request('luaDocumentFormatting', {
-          tabSize: options.tabSize,
-          value: model.getValue(),
-        })
-          .then(text => {
-            resolve([{ range: model.getFullModelRange(), text }]);
-          })
-          .catch(e => {
-            resolve();
-          }); */
+  monaco.languages.registerDocumentFormattingEditProvider('json', {
+    provideDocumentFormattingEdits: (model, options, token) => {
+      return new Promise((resolve, reject) => {
+        try {
+          const text = format(model.getValue(), { parser: 'json', printWidth: 120 });
+          resolve([{ range: model.getFullModelRange(), text }]);
+        } catch (e) {
+          resolve();
+        }
       });
     },
   });
