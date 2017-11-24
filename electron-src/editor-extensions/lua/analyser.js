@@ -5,6 +5,7 @@ const { getToLeftBoundaryCount, getToLeftSignatureBoundaryCount, getContainerNam
 const getGlobalCompletionItems = require('./getGlobalCompletionItems');
 const getTriggerCompletionItems = require('./getTriggerCompletionItems');
 const getSignatureItems = require('./getSignatureItems');
+const { parseAssign, parseFunc } = require('./tableItemHelper');
 
 const triggerCharacters = ['.', ':'];
 
@@ -27,38 +28,6 @@ class Analyser {
     this.docAnalyse(value, offset);
   }
 
-  parseTableCtor(target, table) {
-    table.fields.forEach(field => {
-      if (field.type === 'TableKeyString') {
-        const name = field.key.name;
-        target.props[name] = { valueType: field.value.type };
-        if (field.value.type === 'TableConstructorExpression') {
-          target.props[name].props = {};
-          this.parseTableCtor(target.props[name], field.value);
-        }
-      }
-    });
-  }
-
-  parseTableFunc(node) {
-    const containerNames = getContainerNames(node.identifier);
-    const params = node.parameters.map(param => param.name);
-    let curCursor = this.cursorScope.tableCompItems;
-
-    for (let i = containerNames.length - 1; i >= 0; i--) {
-      const name = containerNames[i];
-      if (i === 0) {
-        if (!_.has(curCursor, name)) curCursor[name] = {};
-        curCursor[name].valueType = 'FunctionDeclaration';
-        curCursor[name].params = params;
-      } else {
-        if (!_.has(curCursor, name)) curCursor[name] = { props: {} };
-        else if (!_.has(curCursor[name], 'props')) curCursor[name].props = {};
-        curCursor = curCursor[name].props;
-      }
-    }
-  }
-
   docAnalyse(value, offset) {
     this.globalScope = null;
     this.cursorScope = null;
@@ -70,7 +39,6 @@ class Analyser {
       ranges: true,
       wait: true,
       onCreateNode: node => {
-        // console.log('onCreateNode', node);
         if (node.type === 'Identifier') {
           if (_.has(this.cursorScope.identNodes, node.name)) {
             this.cursorScope.identNodes[node.name].nodes.push(node);
@@ -87,14 +55,10 @@ class Analyser {
           if (_.has(this.allIdentNodes, node.name)) this.allIdentNodes[node.name].push(node);
           else this.allIdentNodes[node.name] = [node];
         } else if (node.type === 'LocalStatement') {
+          parseAssign(this.cursorScope.tableCompItems, node);
           node.variables.forEach((oneVar, idx) => {
             const identNode = this.cursorScope.identNodes[oneVar.name];
             identNode.defIdx = identNode.nodes.indexOf(oneVar);
-
-            if (node.init[idx].type === 'TableConstructorExpression') {
-              this.cursorScope.tableCompItems[oneVar.name] = { props: {} };
-              this.parseTableCtor(this.cursorScope.tableCompItems[oneVar.name], node.init[idx]);
-            }
           });
           this.cursorScope.completionNodes.push(node);
         } else if (node.type === 'FunctionDeclaration') {
@@ -115,8 +79,8 @@ class Analyser {
               identNode.defIdx = identNode.nodes.indexOf(node.identifier);
               this.cursorScope.completionNodes.push(node);
             }
-            this.parseTableFunc(node);
           }
+          parseFunc(this.cursorScope.tableCompItems, node);
         } else if (node.type === 'CallExpression') {
           if (this.isTriggerChar && node.base.type === 'MemberExpression') {
             const name = node.base.identifier.name;
@@ -126,10 +90,11 @@ class Analyser {
           } else {
             this.cursorScope.callNodes.push(node);
           }
+        } else if (node.type === 'AssignmentStatement') {
+          parseAssign(this.cursorScope.tableCompItems, node);
         }
       },
       onCreateScope: () => {
-        // console.log('onCreateScope');
         const newScope = new Scope();
         if (!this.globalScope) {
           this.globalScope = newScope;
@@ -141,7 +106,6 @@ class Analyser {
         this.cursorScope = newScope;
       },
       onDestroyScope: () => {
-        // console.log('onDestroyScope');
         // 退到上一级
         this.cursorScope = this.cursorScope.parentScope;
       },

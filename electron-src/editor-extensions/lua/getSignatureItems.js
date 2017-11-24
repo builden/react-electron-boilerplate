@@ -1,7 +1,7 @@
-const _ = require('lodash');
 const { isOffsetInRange, getContainerNames } = require('./comm');
 const { findMatchedScope } = require('./helper');
 const { getXlua } = require('./xlua');
+const { getSignatureItemsAtScope } = require('./tableItemHelper');
 
 function findMatchedNode(scope, offset) {
   for (const node of scope.callNodes) {
@@ -10,31 +10,12 @@ function findMatchedNode(scope, offset) {
   return null;
 }
 
-function getSignatureItemsAtScope(scope, containerNames) {
-  if (!containerNames.length) return [];
-  if (!_.has(scope.tableCompItems, containerNames[containerNames.length - 1]) && scope.parentScope) {
-    return getSignatureItemsAtScope(scope.parentScope, containerNames);
+function getActiveSignture(activeParameter, signatures) {
+  let i = 0;
+  for (; i < signatures.length; ++i) {
+    if (activeParameter < signatures[i].parameters.length) break;
   }
-  const rst = [];
-  let curCursor = { props: scope.tableCompItems };
-  for (let i = containerNames.length - 1; i >= 0; i--) {
-    const name = containerNames[i];
-    if (_.has(curCursor.props, name)) {
-      const prop = curCursor.props[name];
-      if (i === 0) {
-        const item = {
-          label: `${name}(${prop.params.join(', ')})`,
-          parameters: prop.params.map(param => ({ label: param })),
-        };
-        rst.push(item);
-      } else {
-        curCursor = prop;
-      }
-    } else {
-      break;
-    }
-  }
-  return rst;
+  return i;
 }
 
 module.exports = function getSignatureItems(globalScope, offset, allIdentNodes, isAfterComma) {
@@ -52,14 +33,16 @@ module.exports = function getSignatureItems(globalScope, offset, allIdentNodes, 
   }
 
   let activeParameter = 0;
+  let activeSignature = 0;
   const argLen = matchedNode.arguments.length;
   if (argLen > 0) {
     activeParameter = argLen - 1;
     if (isAfterComma) activeParameter++;
+    activeSignature = getActiveSignture(activeParameter, signatures);
   }
   return {
     signatures: signatures,
-    activeSignature: 0,
+    activeSignature,
     activeParameter,
   };
 };
