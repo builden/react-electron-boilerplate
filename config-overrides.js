@@ -73,6 +73,8 @@ module.exports = function override(config, env) {
     config.plugins.splice(3, 1); // remove UglifyJSPlugin, for 'lua-fmt'
   }
 
+  config.resolve.modules.push(path.join(__dirname, 'src'));
+
   injectPhaser(config);
   injectAntd(config, env);
 
