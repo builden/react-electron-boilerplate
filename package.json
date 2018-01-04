@@ -17,7 +17,7 @@
     "start": "cross-env PORT=3011 react-app-rewired start",
     "start:web": "yarn start -w",
     "build": "react-app-rewired build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test",
     "flow": "flow",
     "eject": "react-scripts eject",
     "electron": "electron .",
@@ -51,11 +51,7 @@
   },
   "homepage": "./",
   "build": {
-    "files": [
-      "electron-src/**",
-      "build/**",
-      "!build/**/*.map"
-    ],
+    "files": ["electron-src/**", "build/**", "!build/**/*.map"],
     "directories": {
       "buildResources": "build-res"
     },

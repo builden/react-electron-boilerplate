@@ -11,6 +11,7 @@ const phaserModule = path.join(__dirname, './node_modules/phaser-ce/');
 const phaser = path.join(phaserModule, 'build/custom/phaser-split.js');
 const pixi = path.join(phaserModule, 'build/custom/pixi.js');
 const p2 = path.join(phaserModule, 'build/custom/p2.js');
+const electron = path.join(__dirname, './src/__mocks__/electron.web.js');
 
 program
   .version(version)
@@ -56,7 +57,11 @@ function injectPhaser(config) {
 }
 
 module.exports = function override(config, env) {
-  if (!program.web) config.target = 'electron-renderer';
+  if (!program.web) {
+    config.target = 'electron-renderer';
+  } else {
+    Object.assign(config.resolve.alias, { electron: electron });
+  }
 
   if (program.index)
     config.entry[config.entry.length - 1] = path.join(__dirname, `./src/TestIndex/${program.index}.js`);
