@@ -62,12 +62,12 @@ function injectPhaser(config) {
 module.exports = function override(config, env) {
   if (!program.web) {
     config.target = 'electron-renderer';
-  } else {
-    Object.assign(config.resolve.alias, { electron: electron });
 
     require('react-dev-utils/openBrowser');
     const openBrowserPath = require.resolve('react-dev-utils/openBrowser');
     require.cache[openBrowserPath].exports = url => {};
+  } else {
+    Object.assign(config.resolve.alias, { electron: electron });
   }
 
   if (program.index)
